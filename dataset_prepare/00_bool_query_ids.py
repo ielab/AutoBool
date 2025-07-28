@@ -1,7 +1,6 @@
 
 from utils.pubmed_submission import pubmed_submission
 
-#
 
 def get_pubmed_ids(query, pubmed_ids_file):
 
