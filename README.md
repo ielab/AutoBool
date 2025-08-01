@@ -50,15 +50,12 @@ pip install -r requirements.txt
 
 ### 2. Prepare Datasets (You can skip this step as datasets are already provided)
 ```bash
-python dataset_prepare/01_download_pubmed.py
-python dataset_prepare/02_split_review_all.py
-python dataset_prepare/03_process_clef.py
-python dataset_prepare/03_process_seed.py
-python dataset_prepare/03_split_by_review_types.py
-python dataset_prepare/04_date_correction_retrieve.py
-python dataset_prepare/05_sr_collection_remove_clef_seed_ids.py
-python dataset_prepare/06_filter_references.py
+python process_pubmed.py
+python3 process_clef.py
+python3 process_seed.py
 ```
+
+
 
 ### 3. Train AutoBool Model
 
