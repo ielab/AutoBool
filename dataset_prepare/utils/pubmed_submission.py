@@ -3,7 +3,7 @@ import time
 import pandas
 import requests
 from typing import List, Tuple
-
+from tqdm import tqdm
 min_date = "1975/01/01"
 max_date = "2024/12/31"
 email="xxx@gmail.com"
@@ -110,3 +110,55 @@ def retrieve_documents(query: str,
     except Exception as e:
         print(f"Error retrieving documents: {e}")
         return []
+
+import xml.etree.ElementTree as ET
+def pmids_to_pmcids(
+    pmids,
+    batch_size=150,
+    delay=0.34,
+    max_retries=3,
+):
+    """
+    Given a list of PMIDs, return a dict mapping each PMID to a single PMCID string,
+    or None if no PMCID is available.
+    """
+    mapping = {}
+    for i in tqdm(range(0, len(pmids), batch_size)):
+        batch = pmids[i : i + batch_size]
+        ids_str = ",".join(batch)
+        print(f"Processing batch {i}-{i+len(batch)-1} ({len(batch)} PMIDs)...")
+
+        # Attempt with retries
+        for attempt in range(1, max_retries + 1):
+            try:
+                handle = Entrez.elink(
+                    dbfrom="pubmed",
+                    db="pmc",
+                    id=batch,
+                    linkname="pubmed_pmc",
+                    email=email,
+                )
+                linksets = Entrez.read(handle)
+                handle.close()
+                break
+            except Exception as e:
+                if attempt == max_retries:
+                    print(f"[ERROR] elink failed for batch starting at {i} after {attempt} attempts: {e}")
+                    linksets = []
+                else:
+                    backoff = attempt * 1.0
+                    print(f"elink failed (attempt {attempt}), retrying after {backoff}s...")
+                    time.sleep(backoff)
+
+        for linkset in linksets:
+            pmid = linkset.get("IdList", [None])[0]
+            pmcid = None
+            if linkset.get("LinkSetDb"):
+                links = linkset["LinkSetDb"][0].get("Link", [])
+                if links:
+                    pmcid = "PMC" + links[0]["Id"]  # Only take the first
+            mapping[pmid] = pmcid
+            #print(f"{pmid} -> {pmcid}")
+
+        time.sleep(delay)
+    return mapping

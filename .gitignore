@@ -1,1 +1,8 @@
 /.idea
+dataset_prepare/config_local.py
+dataset_prepare/xml_dump
+data/processed
+data/raw/pubmed
+*.txt
+*.xml
+data/raw/.DS_Store
