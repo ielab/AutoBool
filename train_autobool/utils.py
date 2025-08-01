@@ -131,19 +131,6 @@ def load_jsonl_dataset(dataset_folder: str, completion: bool = False, sample_for
                             "last_ref_date": last_ref_date,
                             "ground_truth": ground_truth
                         }
-
-
-                        # boolean_query = record.get("boolean_query", "")
-                        # # Retrieve documents if boolean_query is provided
-                        # if boolean_query:
-                        #     current_dict["boolean_query"] = boolean_query
-                        #     if completion:
-                        #         current_dict["completion"] = form_completion(boolean_query, sample_out_format)
-                        #     retrieved_docs = record.get("retrieved_ids", [])
-                        #     if not retrieved_docs:
-                        #         retrieved_docs = cached_retrieve_documents(boolean_query, mindate=min_date, maxdate=max_date)
-                        #         print(f"Retrieved {len(retrieved_docs)} documents for query: {boolean_query}")
-                        #     current_dict["retrieved_ids"] = retrieved_docs
                         data.append(current_dict)
                 except json.JSONDecodeError:
                     continue
