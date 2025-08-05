@@ -2,7 +2,15 @@
 config.py - Centralized configuration for PubMed processing pipeline
 """
 import os
+import sys
 from pathlib import Path
+
+# Add parent directory to Python path to import utils
+sys.path.append('..')
+from utils.logging_config import get_logger
+
+# Setup logger
+logger = get_logger("autobool.dataset.config")
 
 # Base directories
 BASE_DIR = Path("../data")
@@ -61,4 +69,4 @@ def ensure_directories():
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
 
-    print(f"✅ Ensured all directories exist")
+    logger.info("Ensured all directories exist")

@@ -17,6 +17,7 @@ from peft import LoraConfig, get_peft_model
 from trl import GRPOConfig, GRPOTrainer
 
 from reward import format_reward_func, validity_reward_func, retrieval_reward_func
+from utils.logging_config import setup_training_logger
 
 
 class ModelConfig:
@@ -70,7 +71,8 @@ class ModelConfig:
             )
             model = get_peft_model(base_model, lora_config)
             trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-            print(f"Number of trainable parameters: {trainable_params:,}")
+            logger = setup_training_logger("model_setup", "logs")
+            logger.info(f"Number of trainable parameters: {trainable_params:,}")
         else:
             model = base_model
 
@@ -102,7 +104,8 @@ def prepare_eval_dataset(dataset_name: str, alpha: float, seed: int, max_eval_sa
         )
         return eval_dataset
     except ValueError:
-        print("No test split found, training without evaluation dataset")
+        logger = setup_training_logger("dataset_prep", "logs")
+        logger.warning("No test split found, training without evaluation dataset")
         return None
 
 
@@ -176,26 +179,29 @@ def train_grpo(
         alpha: float = 1.0,
 ):
     """Main training function."""
-    print(f"Training Configuration:")
-    print(f"  Model: {model_name}")
-    print(f"  Dataset: {dataset_name}")
-    print(f"  Output Directory: {output_dir}")
-    print(f"  Batch Size: {batch_size}")
-    print(f"  Learning Rate: {learning_rate}")
-    print(f"  Alpha: {alpha}")
-    print(f"  Sample Dataset: {sample}")
+    # Setup training logger
+    logger = setup_training_logger("grpo_training", output_dir)
+    
+    logger.info("Training Configuration:")
+    logger.info(f"  Model: {model_name}")
+    logger.info(f"  Dataset: {dataset_name}")
+    logger.info(f"  Output Directory: {output_dir}")
+    logger.info(f"  Batch Size: {batch_size}")
+    logger.info(f"  Learning Rate: {learning_rate}")
+    logger.info(f"  Alpha: {alpha}")
+    logger.info(f"  Sample Dataset: {sample}")
 
     # Prepare datasets
     train_dataset = prepare_dataset(dataset_name, alpha, sample, seed)
     eval_dataset = prepare_eval_dataset(dataset_name, alpha, seed)
-    print(f"Training samples: {len(train_dataset)}")
+    logger.info(f"Training samples: {len(train_dataset)}")
     if eval_dataset:
-        print(f"Evaluation samples: {len(eval_dataset)}")
+        logger.info(f"Evaluation samples: {len(eval_dataset)}")
 
     # Create model
     model_config = ModelConfig(model_name, load_in_8bit, train_lora, gradient_checkpointing)
     model = model_config.create_model()
-    print("Model loaded successfully.")
+    logger.info("Model loaded successfully.")
 
     # Create training configuration
     config = create_grpo_config(
@@ -213,17 +219,17 @@ def train_grpo(
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
     )
-    print("Trainer initialized successfully.")
+    logger.info("Trainer initialized successfully.")
 
     # Check for existing checkpoints
     existing_checkpoints = glob.glob(os.path.join(output_dir, "checkpoint-*"))
     resume_from_checkpoint = len(existing_checkpoints) > 0
 
     if resume_from_checkpoint:
-        print(f"Resuming training from existing checkpoint...")
+        logger.info("Resuming training from existing checkpoint...")
         trainer.train(resume_from_checkpoint=True)
     else:
-        print("Starting training from scratch...")
+        logger.info("Starting training from scratch...")
         trainer.train()
 
     # Save final model
@@ -231,12 +237,12 @@ def train_grpo(
         output_final_dir = os.path.join(output_dir, "final")
         os.makedirs(output_final_dir, exist_ok=True)
         trainer.model.save_pretrained(output_final_dir)
-        print(f"Final model saved to: {output_final_dir}")
+        logger.info(f"Final model saved to: {output_final_dir}")
     elif not torch.distributed.is_initialized():
         output_final_dir = os.path.join(output_dir, "final")
         os.makedirs(output_final_dir, exist_ok=True)
         trainer.model.save_pretrained(output_final_dir)
-        print(f"Final model saved to: {output_final_dir}")
+        logger.info(f"Final model saved to: {output_final_dir}")
 
 
 def parse_arguments():
@@ -314,9 +320,10 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    print("=" * 60)
-    print("GRPO Boolean Query Training")
-    print("=" * 60)
+    logger = setup_training_logger("main", "logs")
+    logger.info("=" * 60)
+    logger.info("GRPO Boolean Query Training")
+    logger.info("=" * 60)
 
     train_grpo(
         model_name=args.model_name,

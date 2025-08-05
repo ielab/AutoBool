@@ -27,6 +27,14 @@ from steps import (
     step_05_date_correction_retrieve
 )
 
+# Add parent directory to Python path to import utils
+import sys
+sys.path.append('..')
+from utils.logging_config import setup_dataset_logger
+
+# Setup logger
+logger = setup_dataset_logger("pubmed_pipeline")
+
 STEP_FUNCTIONS = {
     0: {
         'func': step_00_get_pubmed_ids,
@@ -63,33 +71,33 @@ STEP_FUNCTIONS = {
 
 def print_banner():
     """Print a nice banner"""
-    print("=" * 70)
-    print("🔬 PubMed Systematic Review Processing Pipeline")
-    print("=" * 70)
+    logger.info("=" * 70)
+    logger.info("🔬 PubMed Systematic Review Processing Pipeline")
+    logger.info("=" * 70)
 
 
 def print_step_summary():
     """Print summary of all available steps"""
-    print("\n📋 Available Steps:")
-    print("-" * 50)
+    logger.info("\n📋 Available Steps:")
+    logger.info("-" * 50)
     for step_num, step_info in STEP_FUNCTIONS.items():
-        print(f"  Step {step_num}: {step_info['name']}")
-        print(f"           {step_info['description']}")
-    print("-" * 50)
+        logger.info(f"  Step {step_num}: {step_info['name']}")
+        logger.info(f"           {step_info['description']}")
+    logger.info("-" * 50)
 
 
 def run_step(step_num, verbose=True):
     """Run a single step"""
     if step_num not in STEP_FUNCTIONS:
-        print(f"❌ Error: Step {step_num} does not exist")
+        logger.error(f"Step {step_num} does not exist")
         return False
 
     step_info = STEP_FUNCTIONS[step_num]
 
     if verbose:
-        print(f"\n🚀 Starting Step {step_num}: {step_info['name']}")
-        print(f"   {step_info['description']}")
-        print("-" * 50)
+        logger.info(f"\n🚀 Starting Step {step_num}: {step_info['name']}")
+        logger.info(f"   {step_info['description']}")
+        logger.info("-" * 50)
 
     start_time = time.time()
 

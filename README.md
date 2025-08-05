@@ -33,6 +33,7 @@ Scripts for training and evaluating the AutoBool model.
   - `create_dataset_conceptual.py`
   - `create_dataset_objective.py`
 - `utils.py`: Shared training utilities.
+- `entrez_api/`: FastAPI service for PubMed query processing (see dedicated README)
 
 ---
 
@@ -58,12 +59,58 @@ Note huggingface datasets are already available uploaded, you can skip the datas
 huggingface-cli download [anonymoused_for_review] 
 ```
 
+### 3. Start Entrez API Service
+*Required for training - the reward function needs access to PubMed queries*
 
-### 3. Train AutoBool Model
+```bash
+cd train_autobool/entrez_api
+
+# Configure API keys in entrez_submission_api.py first
+# Then start the service
+docker-compose up --build -d
+```
+
+For detailed API setup instructions, see `train_autobool/entrez_api/README.md`.
+
+### 4. Create Training Dataset
+*Format your processed data for training with different prompt types*
+
+```bash
+cd train_autobool
+
+# Create dataset with reasoning prompts (includes <think></think> tags)
+python create_unified_dataset.py --prompt-type reasoning \
+  --data-path ../data/processed/pubmed/sr_augmented_result \
+  --hf-name your-username/pubmed-reasoning-dataset
+
+# Create dataset with no reasoning (direct answer only)
+python create_unified_dataset.py --prompt-type no_reason \
+  --data-path ../data/processed/pubmed/sr_augmented_result \
+  --hf-name your-username/pubmed-no-reason-dataset
+
+# Create dataset with conceptual method
+python create_unified_dataset.py --prompt-type conceptual \
+  --data-path ../data/processed/pubmed/sr_augmented_result \
+  --hf-name your-username/pubmed-conceptual-dataset
+
+# For CLEF/SEED datasets (no splits)
+python create_unified_dataset.py --prompt-type reasoning \
+  --data-path ../data/processed/clef_augmented \
+  --hf-name your-username/clef-reasoning-dataset \
+  --no-split
+```
+
+**Available prompt types:**
+- `no_reason`: Direct Boolean query generation without reasoning
+- `reasoning`: Includes reasoning process in `<think></think>` tags
+- `conceptual`: Step-by-step conceptual method approach
+- `objective`: Objective method with simulated examples
+
+### 5. Train AutoBool Model
 
 ```bash
 deepspeed --include localhost:${gpu_list} --master_port $master_port \
-  train_grpo_v3.py \
+  train_grpo.py \
   --max_completion_length $max_completion_length \
   --max_prompt_length $max_prompt_length \
   --train_lora \
@@ -76,8 +123,10 @@ deepspeed --include localhost:${gpu_list} --master_port $master_port \
   --gradient_checkpointing \
   --epochs 1 \
   --gradient_accumulation_steps $gradient_accumulation_steps \
-  --dataset_name $dataset \
+  --dataset_name your-username/pubmed-reasoning-dataset \
   --model_name $model_name \
   --output_dir $output_dir 
     
 ```
+
+**Note:** Use the dataset name from step 4 in the `--dataset_name` parameter.

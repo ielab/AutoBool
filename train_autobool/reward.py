@@ -16,6 +16,11 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from utils.logging_config import get_logger
+
+# Setup logger for reward functions
+logger = get_logger("autobool.reward")
+
 # Configuration
 FASTAPI_URL = "http://localhost:8000/entrez/query"
 MAX_WORKERS = 4
@@ -170,7 +175,7 @@ def cached_retrieve_documents(query: str, mindate: str, maxdate: str) -> List[st
         data = response.json()
         return data.get("ids", [])
     except requests.exceptions.RequestException as e:
-        print(f"[Client Error] Query '{query[:40]}...': {e}")
+        logger.error(f"Client Error - Query '{query[:40]}...': {e}")
         return []
 
 
@@ -313,7 +318,7 @@ def retrieval_reward_func(
                     retrieved_ids = future.result()
                     retrieved_results[original_index] = retrieved_ids
                 except Exception as e:
-                    print(f"[Executor Error] Task for index {original_index} failed: {e}")
+                    logger.error(f"Executor Error - Task for index {original_index} failed: {e}")
                     retrieved_results[original_index] = []
 
     # Calculate rewards
@@ -359,6 +364,6 @@ if __name__ == "__main__":
         completions, ground_truth, first_ref_date, last_ref_date
     )
 
-    print("Format rewards:", format_rewards)
-    print("Validity rewards:", validity_rewards)
-    print("Retrieval rewards:", retrieval_rewards)
+    logger.info(f"Format rewards: {format_rewards}")
+    logger.info(f"Validity rewards: {validity_rewards}")
+    logger.info(f"Retrieval rewards: {retrieval_rewards}")
