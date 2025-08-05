@@ -130,3 +130,18 @@ deepspeed --include localhost:${gpu_list} --master_port $master_port \
 ```
 
 **Note:** Use the dataset name from step 4 in the `--dataset_name` parameter.
+
+### 6. Run Inference
+*Generate Boolean queries with your trained model*
+
+```bash
+cd train_autobool
+
+python run_generation.py \
+  --model_path checkpoints/grpo-boolean-query/final \
+  --dataset_name your-username/pubmed-reasoning-dataset \
+  --split test \
+  --batch_size 4 \
+  --use_vllm \
+  --output_dir results/
+```
