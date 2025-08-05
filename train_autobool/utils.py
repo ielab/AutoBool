@@ -16,10 +16,7 @@ from datasets import Dataset, DatasetDict, load_dataset
 from transformers import AutoTokenizer
 from tqdm import tqdm
 
-# Add parent directory for logging
-import sys
-sys.path.append('..')
-from utils.logging_config import get_logger
+from logging_config import get_logger
 
 logger = get_logger("autobool.utils")
 

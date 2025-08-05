@@ -17,7 +17,7 @@ from peft import LoraConfig, get_peft_model
 from trl import GRPOConfig, GRPOTrainer
 
 from reward import format_reward_func, validity_reward_func, retrieval_reward_func
-from utils.logging_config import setup_training_logger
+from logging_config import setup_training_logger
 
 
 class ModelConfig:

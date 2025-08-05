@@ -18,9 +18,7 @@ from typing import Dict, List, Optional
 from datasets import Dataset, DatasetDict
 from tqdm import tqdm
 
-# Add utils to path for logging
-sys.path.append('..')
-from utils.logging_config import get_logger
+from logging_config import get_logger
 
 # Import the core functions from utils.py 
 from utils import process_and_push, build_prompt, create_split_dataset, load_jsonl_dataset

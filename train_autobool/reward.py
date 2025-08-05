@@ -16,7 +16,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from utils.logging_config import get_logger
+from logging_config import get_logger
 
 # Setup logger for reward functions
 logger = get_logger("autobool.reward")
