@@ -4,6 +4,8 @@
 
 ---
 
+
+
 ## 📁 Project Structure
 
 ### `data/`
@@ -39,13 +41,20 @@ Scripts for training and evaluating the AutoBool model.
 
 ## 🚀 Getting Started
 
-### 1. Install Dependencies
+If you wish to use our pre-trained models and datasets directly from Hugging Face, you can skip Steps 3 through 6 and proceed straight to Step 7 (Inference).
+
+### 1. Resources & Models
+All trained models and processed datasets are available in our Hugging Face collection:
+👉 **[AutoBool Hugging Face Collection](https://huggingface.co/collections/ielabgroup/autobool)**
+
+
+### 2. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Prepare Datasets  
+### 3. Prepare Datasets  
 *(Skip this step if datasets are already prepared)*
 
 ```bash
@@ -59,7 +68,7 @@ Note huggingface datasets are already available uploaded, you can skip the datas
 huggingface-cli download [anonymoused_for_review] 
 ```
 
-### 3. Start Entrez API Service
+### 4. Start Entrez API Service
 *Required for training - the reward function needs access to PubMed queries*
 
 ```bash
@@ -72,7 +81,7 @@ docker-compose up --build -d
 
 For detailed API setup instructions, see `train_autobool/entrez_api/README.md`.
 
-### 4. Create Training Dataset
+### 5. Create Training Dataset
 *Format your processed data for training with different prompt types*
 
 ```bash
@@ -106,7 +115,7 @@ python create_unified_dataset.py --prompt-type reasoning \
 - `conceptual`: Step-by-step conceptual method approach
 - `objective`: Objective method with simulated examples
 
-### 5. Train AutoBool Model
+### 6. Train AutoBool Model
 
 ```bash
 deepspeed --include localhost:${gpu_list} --master_port $master_port \
@@ -131,7 +140,7 @@ deepspeed --include localhost:${gpu_list} --master_port $master_port \
 
 **Note:** Use the dataset name from step 4 in the `--dataset_name` parameter.
 
-### 6. Run Inference
+### 7. Run Inference
 *Generate Boolean queries with your trained model*
 
 ```bash
@@ -144,4 +153,17 @@ python run_generation.py \
   --batch_size 4 \
   --use_vllm \
   --output_dir results/
+```
+
+
+## 📄 Citation
+If you use this model or code, please cite:
+
+```bash
+@inproceedings{autobool2026,
+  title={AutoBool: Reinforcement Learning for Boolean Query Generation in Systematic Reviews},
+  author={Shuai Wang and Harrisen Scells and Bevan Koopman and Guido Zuccon},
+  booktitle={Proceedings of the 2026 Conference of the European Chapter of the Association for Computational Linguistics (EACL)},
+  year={2026}
+}
 ```
