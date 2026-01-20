@@ -4,6 +4,11 @@
 
 ---
 
+## 📄 Paper & Resources
+
+* **Preprint (PDF):** [Download Paper from OpenReview](https://openreview.net/pdf?id=D9NNghIgUR)
+* **Hugging Face Collection:** [Models & Datasets](https://huggingface.co/collections/ielabgroup/autobool)
+* **Conference:** Accepted at EACL 2026
 
 
 ## 📁 Project Structure
