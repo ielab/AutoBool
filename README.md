@@ -10,6 +10,12 @@
 * **Hugging Face Collection:** [Models & Datasets](https://huggingface.co/collections/ielabgroup/autobool)
 * **Conference:** Accepted at EACL 2026
 
+## 🚀 Interactive Demo
+
+Try out our query generation models directly in your browser! The demo allows you to test our different reasoning strategies (Standard, Conceptual, Objective, and No-Reasoning) in real-time.
+
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/wshuai190/AutoBool-Demo) 
+* **Live Demo:** [AutoBool on Hugging Face Spaces](https://huggingface.co/spaces/wshuai190/AutoBool-Demo)
 
 ## 📁 Project Structure
 
